@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main]
 
+      - name: Create scans directory
+        run: mkdir -p scans
+
 jobs:
   security-scan:
     name: Run Semgrep on Python Code
