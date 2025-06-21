@@ -1,13 +1,10 @@
-name: VANGARD CI - Continuous Compliance Pipeline
+name: VANGUARD CI - Continuous Compliance Pipeline
 
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
-
-      - name: Create scans directory
-        run: mkdir -p scans
 
 jobs:
   security-scan:
@@ -27,7 +24,9 @@ jobs:
         run: |
           pip install semgrep
 
+      - name: Create scans directory
+        run: mkdir -p scans
+
       - name: Run Semgrep scan
         run: |
           semgrep --config=auto src/ --json > scans/semgrep-output.json
-
