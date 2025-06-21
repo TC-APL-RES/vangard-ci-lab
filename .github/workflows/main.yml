@@ -1,5 +1,4 @@
-cat <<EOF > .github/workflows/main.yml
-name: VANGUARD CI - Continuous Compliance Pipeline
+name: VANGARD CI - Continuous Compliance Pipeline
 
 on:
   push:
@@ -28,4 +27,4 @@ jobs:
       - name: Run Semgrep scan
         run: |
           semgrep --config=auto src/ --json > scans/semgrep-output.json
-EOF
+
