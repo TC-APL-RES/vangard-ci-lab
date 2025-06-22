@@ -1,4 +1,4 @@
-name: VANGUARD CI - Continuous Compliance Pipeline
+name: VANGARD CI - Continuous Compliance Pipeline
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
     branches: [main]
 
 jobs:
-  security-scan:
-    name: Run Semgrep on Python Code
+  compliance-scan:
+    name: Run Semgrep, tfsec, and Trivy
     runs-on: ubuntu-latest
 
     steps:
@@ -20,13 +20,38 @@ jobs:
         with:
           python-version: 3.11
 
-      - name: Install Semgrep
+      - name: Install dependencies
         run: |
           pip install semgrep
 
-      - name: Create scans directory
-        run: mkdir -p scans
-
       - name: Run Semgrep scan
         run: |
-          semgrep --config=auto src/ --json > scans/semgrep-output.json
+          mkdir -p scans
+          semgrep --config=p/ci src/ --json > scans/semgrep-output.json
+
+      - name: Install tfsec
+        run: |
+          curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+
+      - name: Run tfsec scan
+        run: |
+          tfsec iac/ --format json > scans/tfsec-output.json
+
+      - name: Install Trivy
+        run: |
+          wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.63.0_Linux-64bit.deb
+          sudo dpkg -i trivy_0.63.0_Linux-64bit.deb
+
+      - name: Build Docker image
+        run: docker build -t insecure-app .
+
+      - name: Run Trivy scan
+        run: |
+          trivy image --format json --output scans/trivy-output.json insecure-app
+
+      - name: Upload scan artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: scan-results
+          path: scans/
+
